@@ -11,7 +11,7 @@ var login_1 = require("./controllers/login");
 /* สร้าง express application instance */
 var app = express();
 /* the port the express app will listen on */
-var port = process.env.PORT || '3000'; /* set port || default port */
+var port = process.env.PORT || '4000'; /* set port || default port */
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({

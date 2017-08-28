@@ -11,7 +11,7 @@ import { LoginController } from './controllers/login';
 const app: express.Application = express();
 
 /* the port the express app will listen on */
-const port: string = process.env.PORT || '3000'; /* set port || default port */
+const port: string = process.env.PORT || '4000'; /* set port || default port */
 
 app.use(cors());
 app.use(bodyParser.json());
