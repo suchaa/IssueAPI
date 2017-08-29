@@ -1,30 +1,37 @@
 import { Router, Request, Response } from 'express';
+import { mongodb } from '../helpers/mongoDB';
+import * as myConfig from 'config';
 
-import { MongoClient, ObjectID } from 'mongodb';
+let config: any = myConfig.get('Config');
+var jwt = require("jwt-simple");
 
-/* Assign router to the express.Router() instance */
 const router: Router = Router();
-var mongodb;
 
-export const LoginController: Router = router;
-
-router.get('/', (req: Request, res: Response) => {
-    //let params = JSON.parse(mongodb.req.getBody());
-    let data = req.body;
-    mongodb.collection("user").find().toArray().then((data) => {
-        res.json(data); 
-        
-        
-        
-    });
+router.post("/doLogin", function (req, res) {
+    if (req.body.email && req.body.password) {
+        mongodb.collection("user").findOne({ 
+            email: req.body.email,
+            password : req.body.password
+        }).then((results) => {
+            var userInfo = results;
+            if (userInfo) {
+                var token = jwt.encode(userInfo, config.auth.jwtSecret);
+                res.json({
+                    success : true,
+                    token: token
+                });
+            }else{
+                res.json({
+                    success : false,
+                    message : 'Login fail.'
+                });
+            }
+        }).catch((err) => {
+            res.sendStatus(401);
+        });
+    } else {
+        res.sendStatus(401);
+    }
 });
 
-/* connect mongodb */
-MongoClient.connect(
-    "mongodb://localhost:27017/issued", (err, db) => {
-        if (err) {
-            console.log(err);
-        } else {
-            mongodb = db;
-        }
-    });
+export const LoginController: Router = router;

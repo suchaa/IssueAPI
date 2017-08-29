@@ -66,4 +66,4 @@ mongodb_1.MongoClient.connect("mongodb://localhost:27017/issued", function (err,
         mongodb = db;
     }
 });
-//# sourceMappingURL=C:/Users/Administrator/Desktop/Node25-8-17/IssueAPI/controllers/issue.js.map
+//# sourceMappingURL=C:/Users/suchaa/Desktop/Node28-8-17/IssueAPI/controllers/issue.js.map

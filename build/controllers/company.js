@@ -2,20 +2,27 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = require("express");
 var mongodb_1 = require("mongodb");
+var myConfig = require("config");
+var mongodb_2 = require("../helpers/mongodb");
+var auth = require("../helpers/auth");
+var async = require("async");
+var config = myConfig.get('Config');
 /* Assign router to the express.Router() instance */
 var router = express_1.Router();
-var mongodb;
-exports.CompanyController = router;
+/**
+ * authen ทุก url router.use(auth.authenticate());
+ */
+router.use(auth.authenticate());
 /* req รับมา || res ส่งออกไป */
 router.get('/', function (req, res) {
     /* show collection ที่มีใน company */
-    mongodb.collection("company").find().toArray().then(function (data) {
+    mongodb_2.mongodb.collection("company").find().toArray().then(function (data) {
         res.json(data); /* แสดงข้อมูลแบบ json */
     });
 });
 router.get('/findById/:id', function (req, res) {
     var id = new mongodb_1.ObjectID(req.params.id);
-    mongodb.collection("company").findOne({ _id: id }).then(function (data) {
+    mongodb_2.mongodb.collection("company").findOne({ _id: id }).then(function (data) {
         res.json(data);
     });
 });
@@ -26,21 +33,21 @@ router.get('/findById/:id', function (req, res) {
 /* รับข้อมูลแบบ json มา , res.json(req.body); แล้วแสดง*/
 router.post('/', function (req, res) {
     var data = req.body;
-    mongodb.collection("company").insertOne(data).then(function (data) {
+    mongodb_2.mongodb.collection("company").insertOne(data).then(function (data) {
         res.json(data);
     });
     //res.json(req.body); /* แสดงข้อมูลแบบ json ที่หน้าจอ*/
 });
 router.delete('/:id', function (req, res) {
     var id = new mongodb_1.ObjectID(req.params.id);
-    mongodb.collection("company").deleteOne({ _id: id }).then(function (data) {
+    mongodb_2.mongodb.collection("company").deleteOne({ _id: id }).then(function (data) {
         res.json(data);
     });
 });
 router.put('/:id', function (req, res) {
     var id = new mongodb_1.ObjectID(req.params.id);
     var data = req.body;
-    mongodb.collection("company").updateOne({ _id: id }, data).then(function (data) {
+    mongodb_2.mongodb.collection("company").updateOne({ _id: id }, data).then(function (data) {
         res.json(data);
     });
 });
@@ -50,14 +57,14 @@ router.post('/search', function (req, res) {
         total: 0
     };
     var data = req.body;
-    mongodb.collection("company")
+    mongodb_2.mongodb.collection("company")
         .find({ compName: new RegExp("" + data.searchText) })
         .skip(data.numPage * data.rowPerPage)
         .limit(data.rowPerPage)
         .toArray()
         .then(function (rows) {
         ret.rows = rows;
-        mongodb.collection("company")
+        mongodb_2.mongodb.collection("company")
             .find({ compName: new RegExp("" + data.searchText) })
             .count().then(function (data) {
             ret.total = data;
@@ -65,13 +72,44 @@ router.post('/search', function (req, res) {
         });
     });
 });
-/* connect mongodb */
-mongodb_1.MongoClient.connect("mongodb://localhost:27017/issued", function (err, db) {
-    if (err) {
-        console.log(err);
-    }
-    else {
-        mongodb = db;
-    }
+router.post('/find', function (req, res) {
+    //  let ret = {
+    //     rows: [],
+    //     total: 0
+    // }; 
+    var data = req.body;
+    async.parallel([
+        function (callback) {
+            mongodb_2.mongodb.collection("company").find({
+                compName: new RegExp("" + data.searchText)
+            }).skip(data.numPage * data.rowPerPage)
+                .limit(data.rowPerPage)
+                .toArray().then(function (rows) {
+                callback(null, rows);
+            });
+        },
+        function (callback) {
+            mongodb_2.mongodb.collection("company").find({
+                compName: new RegExp("" + data.searchText)
+            }).count().then(function (data) {
+                callback(null, data);
+            });
+        }
+    ], function (err, results) {
+        var ret = {
+            rows: results[0],
+            total: results[1]
+        };
+        res.json(ret);
+    });
 });
-//# sourceMappingURL=C:/Users/Administrator/Desktop/Node25-8-17/IssueAPI/controllers/company.js.map
+exports.CompanyController = router;
+/* connect mongodb */
+//   MongoClient.connect(config.mongodbUrl , (err, db) => {
+//         if (err) {
+//             console.log(err);
+//         } else {
+//             this.mongodb = db;
+//         }
+//     });   
+//# sourceMappingURL=C:/Users/suchaa/Desktop/Node28-8-17/IssueAPI/controllers/company.js.map

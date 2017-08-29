@@ -1,25 +1,38 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = require("express");
-var mongodb_1 = require("mongodb");
-/* Assign router to the express.Router() instance */
+var mongoDB_1 = require("../helpers/mongoDB");
+var myConfig = require("config");
+var config = myConfig.get('Config');
+var jwt = require("jwt-simple");
 var router = express_1.Router();
-var mongodb;
-exports.LoginController = router;
-router.get('/', function (req, res) {
-    //let params = JSON.parse(mongodb.req.getBody());
-    var data = req.body;
-    mongodb.collection("user").find().toArray().then(function (data) {
-        res.json(data);
-    });
-});
-/* connect mongodb */
-mongodb_1.MongoClient.connect("mongodb://localhost:27017/issued", function (err, db) {
-    if (err) {
-        console.log(err);
+router.post("/doLogin", function (req, res) {
+    if (req.body.email && req.body.password) {
+        mongoDB_1.mongodb.collection("user").findOne({
+            email: req.body.email,
+            password: req.body.password
+        }).then(function (results) {
+            var userInfo = results;
+            if (userInfo) {
+                var token = jwt.encode(userInfo, config.auth.jwtSecret);
+                res.json({
+                    success: true,
+                    token: token
+                });
+            }
+            else {
+                res.json({
+                    success: false,
+                    message: 'Login fail.'
+                });
+            }
+        }).catch(function (err) {
+            res.sendStatus(401);
+        });
     }
     else {
-        mongodb = db;
+        res.sendStatus(401);
     }
 });
-//# sourceMappingURL=C:/Users/Administrator/Desktop/Node25-8-17/IssueAPI/controllers/login.js.map
+exports.LoginController = router;
+//# sourceMappingURL=C:/Users/suchaa/Desktop/Node28-8-17/IssueAPI/controllers/login.js.map

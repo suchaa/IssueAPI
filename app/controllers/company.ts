@@ -1,12 +1,20 @@
 import { Router, Request, Response } from 'express';
-
 import { MongoClient, ObjectID } from 'mongodb';
+import * as myConfig from 'config';
+import { mongodb } from '../helpers/mongodb';
+import * as auth from '../helpers/auth';
+import * as async from 'async';
+
+let config: any = myConfig.get('Config');
 
 /* Assign router to the express.Router() instance */
 const router: Router = Router();
-var mongodb;
 
-export const CompanyController: Router = router;
+/**
+ * authen ทุก url router.use(auth.authenticate());
+ */
+
+router.use(auth.authenticate());
 
 /* req รับมา || res ส่งออกไป */
 router.get('/', (req: Request, res: Response) => {
@@ -67,20 +75,60 @@ router.post('/search', (req: Request, res: Response) => {
         .then((rows) => {
             ret.rows = rows;
             mongodb.collection("company")
-            .find({ compName: new RegExp(`${data.searchText}`) })
+                .find({ compName: new RegExp(`${data.searchText}`) })
                 .count().then((data) => {
+                    
                     ret.total = data;
                     res.json(ret);
                 })
         });
 });
 
-/* connect mongodb */
-MongoClient.connect(
-    "mongodb://localhost:27017/issued", (err, db) => {
-        if (err) {
-            console.log(err);
-        } else {
-            mongodb = db;
+router.post('/find', (req: Request, res: Response) => {
+    //  let ret = {
+    //     rows: [],
+    //     total: 0
+    // }; 
+    let data = req.body;
+    async.parallel([
+        function (callback) {
+            mongodb.collection("company").find(
+                {
+                    compName: new RegExp(`${data.searchText}`)
+                }
+            ).skip(data.numPage * data.rowPerPage)
+                .limit(data.rowPerPage)
+                .toArray().then((rows) => {
+                    callback(null, rows);
+                });
+        },
+        function (callback) {
+            mongodb.collection("company").find(
+                {
+                    compName: new RegExp(`${data.searchText}`)
+                }
+            ).count().then((data) => {
+                callback(null, data);
+            })
         }
-    });
+    ],
+        function (err, results) {
+            let ret = {
+                rows: results[0],
+                total: results[1]
+            };
+            res.json(ret);
+        });
+});
+
+
+export const CompanyController: Router = router;
+
+/* connect mongodb */
+//   MongoClient.connect(config.mongodbUrl , (err, db) => {
+//         if (err) {
+//             console.log(err);
+//         } else {
+//             this.mongodb = db;
+//         }
+//     });  
