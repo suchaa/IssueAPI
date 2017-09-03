@@ -4,6 +4,7 @@ import * as myConfig from 'config';
 import { mongodb } from '../helpers/mongodb';
 import * as auth from '../helpers/auth';
 import * as async from 'async';
+import * as xl from 'excel4node';
 
 let config: any = myConfig.get('Config');
 
@@ -14,7 +15,7 @@ const router: Router = Router();
  * authen ทุก url router.use(auth.authenticate());
  */
 
-router.use(auth.authenticate());
+//router.use(auth.authenticate());
 
 /* req รับมา || res ส่งออกไป */
 router.get('/', (req: Request, res: Response) => {
@@ -121,14 +122,14 @@ router.post('/find', (req: Request, res: Response) => {
         });
 });
 
+router.get('/excel', (req: Request, res: Response) => {
+    var wb = new xl.Workbook();
+    var ws = wb.addWorksheet("Reconcile report");
+    ws.cell(1,1).string("Reconcile report").style({font: {bold: true}});
+    wb.write("test.xlsx", (error, result) => {
+        //res.json(result);
+        res.download("test.xlsx");
+    });
+});
 
 export const CompanyController: Router = router;
-
-/* connect mongodb */
-//   MongoClient.connect(config.mongodbUrl , (err, db) => {
-//         if (err) {
-//             console.log(err);
-//         } else {
-//             this.mongodb = db;
-//         }
-//     });  

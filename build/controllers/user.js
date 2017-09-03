@@ -9,6 +9,7 @@ var fs = require('fs');
 var config = myConfig.get('Config');
 /* Assign router to the express.Router() instance */
 var router = express_1.Router();
+//router.use(auth.authenticate());
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, config.uploadPath);
@@ -36,7 +37,7 @@ router.get('/findById/:id', function (req, res) {
 /* add data */
 router.post('/', function (req, res) {
     var data = req.body;
-    mongodb_2.mongodb.collection("user").insertOne(data).then(function (data) {
+    mongodb_2.mongodb.collection("user").insert(data).then(function (data) {
         res.json(data);
     });
 });
@@ -92,13 +93,4 @@ router.get('/profile/:id', function (req, res) {
     });
 });
 exports.UserController = router;
-/* connect mongodb */
-// MongoClient.connect(
-//     "mongodb://localhost:27017/issued", (err, db) => {
-//         if (err) {
-//             console.log(err);
-//         } else {
-//             mongodb = db;
-//         }
-//     }); 
 //# sourceMappingURL=C:/Users/suchaa/Desktop/Node28-8-17/IssueAPI/controllers/user.js.map

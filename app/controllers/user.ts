@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { MongoClient, ObjectID } from 'mongodb';
 import * as myConfig from 'config';
 import { mongodb } from '../helpers/mongodb';
+import * as auth from '../helpers/auth';
 import * as multer from 'multer';
 var fs = require('fs');
 
@@ -9,6 +10,8 @@ let config = myConfig.get('Config');
 
 /* Assign router to the express.Router() instance */
 const router: Router = Router();
+
+ //router.use(auth.authenticate());
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -22,7 +25,6 @@ var storage = multer.diskStorage({
 var upload = multer({ 
   storage: storage
 });
-
 
 /* show data */
 router.get('/', (req: Request, res: Response) => {
@@ -42,7 +44,7 @@ router.get('/findById/:id', (req: Request, res: Response) => {
 /* add data */
 router.post('/', (req: Request, res: Response) => {
     let data = req.body;
-    mongodb.collection("user").insertOne(data).then((data) => { 
+    mongodb.collection("user").insert(data).then((data) => { 
         res.json(data);
     });
 });
@@ -101,13 +103,5 @@ router.get('/profile/:id', (req: Request, res: Response) => {
         }
     });
 });
+
 export const UserController: Router = router;
-/* connect mongodb */
-// MongoClient.connect(
-//     "mongodb://localhost:27017/issued", (err, db) => {
-//         if (err) {
-//             console.log(err);
-//         } else {
-//             mongodb = db;
-//         }
-//     });

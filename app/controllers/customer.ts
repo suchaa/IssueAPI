@@ -1,29 +1,26 @@
 import { Router, Request, Response } from 'express';
-
 import { MongoClient, ObjectID } from 'mongodb';
+import * as myConfig from 'config';
+import { mongodb } from '../helpers/mongodb';/* connect mongodb */
+import * as auth from '../helpers/auth';
+import * as async from 'async';
+
+let config: any = myConfig.get('Config');
 
 /* Assign router to the express.Router() instance */
 const router: Router = Router();
-var mongodb;
 
-export const CustomerController: Router = router;
+router.use(auth.authenticate());
 
 router.get('/', (req: Request, res: Response) => {
     mongodb.collection("customer").find().toArray().then((data) => {
-        res.json(data); 
+        res.json(data);
     });
 });
 
 router.get('/findById/:id', (req: Request, res: Response) => {
     let id = new ObjectID(req.params.id);
     mongodb.collection("customer").findOne({ _id: id }).then((data) => {
-        res.json(data);
-    });
-});
-
-/* company name */
-router.get('/companyname', (req: Request, res: Response) => {
-    mongodb.collection("company").find().toArray().then((data) => {
         res.json(data);
     });
 });
@@ -57,14 +54,14 @@ router.post('/search', (req: Request, res: Response) => {
     };
     let data = req.body;
     mongodb.collection("customer")
-        .find({ firstName: new RegExp(`${data.searchText}`)})
+        .find({ firstName: new RegExp(`${data.searchText}`) })
         .skip(data.numPage * data.rowPerPage)
         .limit(data.rowPerPage)
         .toArray()
         .then((rows) => {
             ret.rows = rows;
             mongodb.collection("customer")
-            .find({ firstName: new RegExp(`${data.searchText}`) })
+                .find({ firstName: new RegExp(`${data.searchText}`) })
                 .count().then((data) => {
                     ret.total = data;
                     res.json(ret);
@@ -72,12 +69,37 @@ router.post('/search', (req: Request, res: Response) => {
         });
 });
 
-/* connect mongodb */
-MongoClient.connect(
-    "mongodb://localhost:27017/issued", (err, db) => {
-        if (err) {
-            console.log(err);
-        } else {
-            mongodb = db;
+router.post('/find', (req: Request, res: Response) => {
+    let data = req.body;
+    async.parallel([
+        function (callback) {
+            mongodb.collection("customer").find(
+                {
+                    custName: new RegExp(`${data.searchText}`)
+                }
+            ).skip(data.numPage * data.rowPerPage)
+                .limit(data.rowPerPage)
+                .toArray().then((rows) => {
+                    callback(null, rows);
+                });
+        },
+        function (callback) {
+            mongodb.collection("customer").find(
+                {
+                    custName: new RegExp(`${data.searchText}`)
+                }
+            ).count().then((data) => {
+                callback(null, data);
+            })
         }
-    });
+    ],
+        function (err, results) {
+            let ret = {
+                rows: results[0],
+                total: results[1]
+            };
+            res.json(ret);
+        });
+});
+
+export const CustomerController: Router = router;

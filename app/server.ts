@@ -20,7 +20,7 @@ const port: string = process.env.PORT || '3000'; /* set port || default port */
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
-    extended : true
+    extended: true
 }));
 
 app.use(auth.initialize());
@@ -35,8 +35,32 @@ app.use('/login', LoginController);
  */
 
 /* serve the application at the given port */
-app.listen(port, () => {
-    /* success callback */
-    console.log(`Listening at http://localhost:${port}/`);
+// app.listen(port, () => {
+//     /* success callback */
+//     console.log(`Listening at http://localhost:${port}/`);
+// });
+
+// Serve the application at the given port
+var server = app.listen(port, () => {
+  // Success callback
+  console.log(`Listening at http://localhost:${port}/`);
 });
+
+/*
+* Socket.IO server section 
+*/
+var io = require('socket.io')(server);
+io.on('connection', function (socket) {
+
+  socket.on('hello', function (data) {
+    socket.emit('news', "xxxxxx");
+  });
+
+  socket.on('add-message', (data) => {
+    socket.emit('message', data);
+  });
+
+});
+
+
 

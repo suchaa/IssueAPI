@@ -6,8 +6,17 @@
 				"session": false
 			}
 		},
-		"mongodbUrl":"mongodb://localhost:27017/issued",
-		"uploadPath": "/Users/suchaa/Documents/Img/"
+		"mongodbUrl": "mongodb://localhost:27017/issued",
+		"postgresUrl": "postgres://isadmin:isadmin@localhost:5432/issue",
+		"uploadPath": "/Users/suchaa/Documents/Img/",
+		"smtp": {
+			"host": "smtp.gmail.com",
+			"port": 465,
+			"secure": true, //use SSL
+			"auth": {
+				"user": "www.saleagent@gmail.com",
+				"pass": "www.saleagent1234"
+			}
+		}
 	}
 }
-

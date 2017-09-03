@@ -31,8 +31,25 @@ app.use('/login', login_1.LoginController);
  * **********************************************************
  */
 /* serve the application at the given port */
-app.listen(port, function () {
-    /* success callback */
+// app.listen(port, () => {
+//     /* success callback */
+//     console.log(`Listening at http://localhost:${port}/`);
+// });
+// Serve the application at the given port
+var server = app.listen(port, function () {
+    // Success callback
     console.log("Listening at http://localhost:" + port + "/");
+});
+/*
+* Socket.IO server section
+*/
+var io = require('socket.io')(server);
+io.on('connection', function (socket) {
+    socket.on('hello', function (data) {
+        socket.emit('news', "xxxxxx");
+    });
+    socket.on('add-message', function (data) {
+        socket.emit('message', data);
+    });
 });
 //# sourceMappingURL=C:/Users/suchaa/Desktop/Node28-8-17/IssueAPI/server.js.map
