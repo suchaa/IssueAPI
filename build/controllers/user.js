@@ -93,4 +93,4 @@ router.get('/profile/:id', function (req, res) {
     });
 });
 exports.UserController = router;
-//# sourceMappingURL=C:/Users/suchaa/Desktop/Node28-8-17/IssueAPI/controllers/user.js.map
+//# sourceMappingURL=D:/Node/IssueAPI/controllers/user.js.map

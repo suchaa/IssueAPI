@@ -113,4 +113,4 @@ router.get('/excel', function (req, res) {
     });
 });
 exports.CompanyController = router;
-//# sourceMappingURL=C:/Users/suchaa/Desktop/Node28-8-17/IssueAPI/controllers/company.js.map
+//# sourceMappingURL=D:/Node/IssueAPI/controllers/company.js.map

@@ -8,7 +8,7 @@
         },
         "mongodbUrl": "mongodb://localhost:27017/issuedb",
         "postgresUrl": "postgres://isadmin:isadmin@localhost:5432/issue",
-        "uploadPath": "/Users/suchaa/Documents/Img/",
+        "uploadPath": "C:/Users/msc24147/Documents/Img/",
 		"smtp": {
 			"host": "smtp.gmail.com",
 			"port": 465,

@@ -142,4 +142,4 @@ router.get('/view-attach/:folderName/:fileName', function (req, res) {
     });
 });
 exports.IssueController = router;
-//# sourceMappingURL=C:/Users/suchaa/Desktop/Node28-8-17/IssueAPI/controllers/issue.js.map
+//# sourceMappingURL=D:/Node/IssueAPI/controllers/issue.js.map
